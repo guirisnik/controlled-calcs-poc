@@ -9,6 +9,7 @@ import { Calculation } from "./Calculation";
 
 function App() {
   const [schematicId, setSchematicId] = useState<string>("");
+  const [schematics, setSchematics] = useState<Array<Schematic>>(getSchematics);
   const [view, setView] = useState("home");
 
   const handleCreateNewSchematic = () => {
@@ -24,16 +25,16 @@ function App() {
   };
 
   function getSchematics(): Array<Schematic> {
-    const schematics: Array<Schematic> = [];
+    const schematicsStored: Array<Schematic> = [];
     for (const key in localStorage) {
       if (key.includes("schematic-")) {
         const schematicString = localStorage.getItem(key);
         if (schematicString != null) {
-          schematics.push(JSON.parse(schematicString));
+          schematicsStored.push(JSON.parse(schematicString));
         }
       }
     }
-    return schematics;
+    return schematicsStored;
   }
 
   function handleClick(schematic: Schematic) {
@@ -48,6 +49,11 @@ function App() {
     setView("calculation");
   }
 
+  function handleClearSchematics() {
+    localStorage.clear();
+    setSchematics([]);
+  }
+
   return view === "home" ? (
     <div className="w-full">
       <div className="buttons-container">
@@ -58,8 +64,9 @@ function App() {
         <Button onClick={handleOpenCalculation} disabled={schematicId === ""}>
           Open Calculation
         </Button>
+        <Button onClick={handleClearSchematics}>Clear Schematics</Button>
       </div>
-      <List handleClick={handleClick} schematics={getSchematics()} />
+      <List handleClick={handleClick} schematics={schematics} />
     </div>
   ) : view === "editor" ? (
     <SchematicsEditor schematicId={schematicId} />

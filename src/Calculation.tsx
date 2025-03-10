@@ -28,9 +28,11 @@ function Calculation({ schematicId }: CalculationProps) {
 
     // Define input values as named variables
     schematic.nodes.forEach((node) => {
-      if (node.type === "userInput") {
-        hf.addNamedExpression(node.data.label, inputValues[node.id] || 0);
-      }
+      const expression =
+        node.type === "userInput"
+          ? inputValues[node.id] || 0
+          : node.data.formula;
+      hf.addNamedExpression(node.data.label, expression);
     });
 
     // Calculate results for calculated nodes
@@ -38,7 +40,7 @@ function Calculation({ schematicId }: CalculationProps) {
     schematic.nodes.forEach((node) => {
       if (node.type === "calculated") {
         try {
-          const result = hf.calculateFormula(node.data.formula, 0);
+          const result = hf.getNamedExpressionValue(node.data.label);
           newCalculatedValues[node.id] = result as string;
         } catch (error) {
           console.error(error);
